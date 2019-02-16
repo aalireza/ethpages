@@ -58,7 +58,7 @@ contract Keybook is Ownable {
         address[] memory dumArray;
         User memory newUser = User(email, name, phoneNumber, pgpKey, twitter, website, dumArray);
         addressToUser[msg.sender] = newUser;
-        /* emit NewEmailVerificationRequest(msg.sender, email); */
+        emit NewEmailVerificationRequest(msg.sender, email);
     }
 
     function verifyEmail(address userAddress, uint8 v, bytes32 r, bytes32 s) public {
