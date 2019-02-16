@@ -1,6 +1,6 @@
 pragma solidity ^0.5.4;
 
-import {Ownable} from "Ownable.sol";
+import {Ownable} from "./Ownable.sol";
 
 
 contract Keybook is Ownable {
@@ -17,33 +17,34 @@ contract Keybook is Ownable {
         address[] emailVerifiedByAddresses;
     }
 
-    event NewUnverifiedEmail(
+    event NewEmailVerificationRequest(
         address userAddress,
         string email
     );
 
     mapping(address => User) addressToUser;
 
-    function getUserByAddress(address userAddress) private view returns (User memory) {
-        return addressToUser[userAddress];
+
+    function requestEmailVerification() public {
+        emit NewEmailVerificationRequest(msg.sender, addressToUser[msg.sender].email);
     }
-    function getEmailForUser(address userAddress) public view returns (string memory){
-        return getUserByAddress(userAddress).email;
+    function getEmailForUser(address userAddress) public view returns (string memory) {
+        return addressToUser[userAddress].email;
     }
-    function getNameForUser(address userAddress) public view returns (string memory){
-        return getUserByAddress(userAddress).name;
+    function getNameForUser(address userAddress) public view returns (string memory) {
+        return addressToUser[userAddress].name;
     }
-    function getPhoneForUser(address userAddress) public view returns (string memory){
-        return getUserByAddress(userAddress).phoneNumber;
+    function getPhoneForUser(address userAddress) public view returns (string memory) {
+        return addressToUser[userAddress].phoneNumber;
     }
-    function getPgpKeyForUser(address userAddress) public view returns (string memory){
-        return getUserByAddress(userAddress).pgpKey;
+    function getPgpKeyForUser(address userAddress) public view returns (string memory) {
+        return addressToUser[userAddress].pgpKey;
     }
-    function getTwitterForUser(address userAddress) public view returns (string memory){
-        return getUserByAddress(userAddress).twitter;
+    function getTwitterForUser(address userAddress) public view returns (string memory) {
+        return addressToUser[userAddress].twitter;
     }
-    function getWebsiteForUser(address userAddress) public view returns (string memory){
-        return getUserByAddress(userAddress).website;
+    function getWebsiteForUser(address userAddress) public view returns (string memory) {
+        return addressToUser[userAddress].website;
     }
 
     function makeUser(string memory email,
@@ -51,11 +52,11 @@ contract Keybook is Ownable {
                       string memory phoneNumber,
                       string memory pgpKey,
                       string memory twitter,
-                      string memory website) public{
+                      string memory website) public {
         address[] memory dumArray;
         User memory newUser = User(email, name, phoneNumber, pgpKey, twitter, website, dumArray);
         addressToUser[msg.sender] = newUser;
-        emit NewUnverifiedEmail(msg.sender, email);
+        emit NewEmailVerificationRequest(msg.sender, email);
     }
 
     function verifyEmail(address userAddress, uint8 v, bytes32 r, bytes32 s) public {
