@@ -81,6 +81,10 @@ contract Keybook is Ownable {
         address[] emailVerifiedByAddresses;
     }
 
+    event NewUnverifiedEmail(
+        address userAddress,
+        string email
+    );
 
     mapping(address => User) addressToUser;
     
@@ -119,7 +123,7 @@ contract Keybook is Ownable {
         User memory newUser = User(email, name, phoneNumber, pgpKey, twitter, website, dumArray);
         addressToUser[msg.sender] = newUser;
         
-        // add event here
+        emit NewUnverifiedEmail(msg.sender, email);
     }
     
     function verifyEmail(address userAddress, uint8 v, bytes32 r, bytes32 s) public {
