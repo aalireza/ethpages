@@ -26,7 +26,9 @@ contract Keybook is Ownable {
 
 
     function requestEmailVerification() public {
-        emit NewEmailVerificationRequest(msg.sender, addressToUser[msg.sender].email);
+       string memory email = addressToUser[msg.sender].email;
+       require(bytes(email).length > 0);
+       emit NewEmailVerificationRequest(msg.sender, email);
     }
     function getEmailForUser(address userAddress) public view returns (string memory) {
         return addressToUser[userAddress].email;
@@ -56,7 +58,7 @@ contract Keybook is Ownable {
         address[] memory dumArray;
         User memory newUser = User(email, name, phoneNumber, pgpKey, twitter, website, dumArray);
         addressToUser[msg.sender] = newUser;
-        emit NewEmailVerificationRequest(msg.sender, email);
+        /* emit NewEmailVerificationRequest(msg.sender, email); */
     }
 
     function verifyEmail(address userAddress, uint8 v, bytes32 r, bytes32 s) public {
