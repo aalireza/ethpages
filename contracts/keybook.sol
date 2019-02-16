@@ -135,6 +135,12 @@ contract Keybook is Ownable {
         verifyingUser.emailVerifiedByAddresses.push(verifier);
     }
     
-    
+    function addVerifier(address newVerifier) public onlyOwner {
+        addressIsAVerifier[newVerifier] = true;
+    }
+        
+    function removeVerifier(address verifierToRemove) public onlyOwner {
+        addressIsAVerifier[verifierToRemove] = false;
+    }
     
 }
