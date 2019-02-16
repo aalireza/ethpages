@@ -10,10 +10,10 @@ contract Keybook is Ownable {
     struct User {
         string email;
         string name;
-        string phoneNumber;
-        string pgpKey;
-        string twitter;
-        string website;
+        /* string phoneNumber; */
+        /* string pgpKey; */
+        /* string twitter; */
+        /* string website; */
         string telegram;
         address[] emailVerifiedByAddresses;
         address[] telegramVerifiedByAddresses;
@@ -53,28 +53,28 @@ contract Keybook is Ownable {
     function getNameForUser(address userAddress) public view returns (string memory) {
         return addressToUser[userAddress].name;
     }
-    function getPhoneForUser(address userAddress) public view returns (string memory) {
-        return addressToUser[userAddress].phoneNumber;
-    }
-    function getPgpKeyForUser(address userAddress) public view returns (string memory) {
-        return addressToUser[userAddress].pgpKey;
-    }
-    function getTwitterForUser(address userAddress) public view returns (string memory) {
-        return addressToUser[userAddress].twitter;
-    }
-    function getWebsiteForUser(address userAddress) public view returns (string memory) {
-        return addressToUser[userAddress].website;
-    }
+    /* function getPhoneForUser(address userAddress) public view returns (string memory) { */
+    /*     return addressToUser[userAddress].phoneNumber; */
+    /* } */
+    /* function getPgpKeyForUser(address userAddress) public view returns (string memory) { */
+    /*     return addressToUser[userAddress].pgpKey; */
+    /* } */
+    /* function getTwitterForUser(address userAddress) public view returns (string memory) { */
+    /*     return addressToUser[userAddress].twitter; */
+    /* } */
+    /* function getWebsiteForUser(address userAddress) public view returns (string memory) { */
+    /*     return addressToUser[userAddress].website; */
+    /* } */
 
     function makeUser(string memory email,
                       string memory name,
-                      string memory phoneNumber,
-                      string memory pgpKey,
-                      string memory twitter,
-                      string memory website,
+                      /* string memory phoneNumber, */
+                      /* string memory pgpKey, */
+                      /* string memory twitter, */
+                      /* string memory website, */
                       string memory telegram) public {
         address[] memory emptyArray;
-        User memory newUser = User(email, name, phoneNumber, pgpKey, twitter, website, telegram, emptyArray, emptyArray);
+        User memory newUser = User(email, name, telegram, emptyArray, emptyArray);
         addressToUser[msg.sender] = newUser;
         if (bytes(email).length > 0){
             emit NewEmailVerificationRequest(msg.sender, email);
