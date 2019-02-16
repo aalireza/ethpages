@@ -61,9 +61,6 @@ typings/
 .next
 
 
-# Truffle
-build/
-
 .ruby-version
 tsconfig.json
 .DS_Store
