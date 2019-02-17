@@ -69,14 +69,17 @@
 		<!-- ko if: searchResults.results() !== null -->
 		<div class="results border mt-2" data-bind="foreach: searchResults.results()">
 			<div class="card p-1">
-				<div class="h5 user-name" data-bind="text: name"></div>
+				<div class="h5 user-name">
+					<span data-bind="text: name"></span>
+					<span class="text-muted">(Unverified)</span>
+				</div>
 				<!-- ko if: telegram !== null -->
-				<div class="user-telegram">
+				<div class="user-telegram" data-bind="if: telegram">
 					Telegram: <a data-bind="attr: {href: 'https://t.me/' + telegram}, text: '@' + telegram"></a>
 				</div>
 				<!-- /ko -->
 				<!-- ko if: email !== null -->
-				<div class="user-email">
+				<div class="user-email" data-bind="if: email">
 					Email: <a data-bind="attr: {href: 'mailto:' + email}, text: email"></a>
 				</div>
 				<!-- /ko -->
@@ -243,6 +246,9 @@
 				</li>
 				<!-- /ko -->
 			</ul>
+			<div class="text-center">
+				<button type="button" class="btn btn-primary" data-bind="click: submissionStatus.resendVerifications()">Resend Verifications</button>
+			</div>
 			<!-- /ko -->
 		</div>
 		<!-- /ko -->

@@ -11,24 +11,26 @@ var minRequiredVerifications = 1;
 var contract = null;
 
 var search = async function(text) {
-	var addrs = await contract.methods.getUsers().call({}); // fetch users
-	var futs = [];
-	for(var i = 0; i !== addrs.length; ++i) {
-	  var addr = addrs[i];
-	  futs.push(contract.methods.getUser(addr).call({}));
-	}
-	var users = await Promise.all(futs);
-	for(var i = 0; i !== addrs.length; ++i) {
-	  users[i].address = addrs[i];
-	}
-    users = users.filter(function(user) {
+    var addrs = await contract.methods.getUsers().call({}); // fetch users
+    var futs = [];
+    for(var i = 0; i !== addrs.length; ++i) {
+        var addr = addrs[i];
+        futs.push(contract.methods.getUser(addr).call({}));
+    }
+    var users = await Promise.all(futs);
+    for(var i = 0; i !== addrs.length; ++i) {
+        users[i].address = addrs[i];
+    }
+
+    users.forEach(function(user) {
+        var verified = true;
         if(user.telegram && user.numTelegramVerifications < minRequiredVerifications) {
-            return false;
+            verified = false;
         }
         if(user.email && user.numEmailVerifications < minRequiredVerifications) {
-            return false;
+            verified = false;
         }
-        return true;
+        user.verified = verified;
     });
     var results = [];
     var text = text.toLowerCase();
@@ -62,7 +64,7 @@ var submit = async function(user) {
 
 var haveProfile = async function() {
     var accountAddress = (await web3.eth.getAccounts())[0];
-	var addrs = await contract.methods.getUsers().call({}); 
+    var addrs = await contract.methods.getUsers().call({}); 
     return addrs.indexOf(accountAddress) !== -1;
 };
 
@@ -77,6 +79,22 @@ var getVerificationStatus = async function() {
         result.email = user.numEmailVerifications >= minRequiredVerifications;
     }
     return result;
+};
+
+var resendVerifications = async function() {
+    var accountAddress = (await web3.eth.getAccounts())[0];
+    var status = await getVerificationStatus();
+    var proms = [];
+    if(status.email === false) {
+        await contract.methods.requestEmailVerification().send({
+            from: accountAddress
+        });
+    }
+    if(status.telegram === false) {
+        await contract.methods.requestTelegramVerification().send({
+            from: accountAddress
+        });
+    }
 };
 
 var importFromUport = async function(attrs) {
@@ -297,6 +315,9 @@ var state = {
                 console.error(ex);
             });
         },
+        resendVerifications: function() {
+            resendVerifications().catch(console.error.bind(console));
+        },
         backToSearch: function() {
             state.activePageId('search');
             state.search.enter();
@@ -358,12 +379,12 @@ var run = async function() {
     var abi = JSON.parse(info.contracts['Keybook.sol:Keybook'].abi);
     contract = new web3.eth.Contract(abi, contractAddress);
     restorePage();
+    onhashchange = function() {
+        restorePage();
+    };
 };
 
 onload = function() {
     run().catch(console.error.bind(console));
     ko.applyBindings(state);
-    onhashchange = function() {
-        restorePage();
-    };
 };
