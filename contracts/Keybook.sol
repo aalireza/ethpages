@@ -37,6 +37,7 @@ contract Keybook is Ownable {
     );
 
 
+    address[] addresses;
     mapping(address => User) addressToUser;
 
 
@@ -81,6 +82,17 @@ contract Keybook is Ownable {
                       /* string memory twitter, */
                       /* string memory website, */
                       string memory telegram) public {
+        // prevent updating for now
+        uint n = addresses.length;
+        for(uint i = 0; i != n; ++i) {
+            if(addresses[i] == msg.sender) {
+                return;
+            }
+        }
+
+        // create the new user
+        addresses.length += 1;
+        addresses[addresses.length - 1] = msg.sender;
         address[] memory emptyArray;
         User memory newUser = User(email, name, telegram, emptyArray, emptyArray);
         addressToUser[msg.sender] = newUser;
@@ -93,7 +105,16 @@ contract Keybook is Ownable {
         }
     }
 
+    function getUsers() public view returns (address[] memory) {
+        return addresses;
+    }
 
+    function getUser(address addr) public view returns (string memory email, string memory name, string memory telegram) {
+        User storage user = addressToUser[addr];
+        email = user.email;
+        name = user.name;
+        telegram = user.telegram;
+    }
 
     uint256 constant N  = 115792089210356248762697446949407573529996955224135760342422259061068512044369;
     //This is the curve order for spec256k
