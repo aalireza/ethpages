@@ -29,6 +29,13 @@ contract Keybook is Ownable {
         string telegram
     );
 
+    event UserDataUpdated(
+        address userAddress,
+        string email,
+        string name,
+        string telegram
+    );
+
 
     mapping(address => User) addressToUser;
 
@@ -77,6 +84,7 @@ contract Keybook is Ownable {
         address[] memory emptyArray;
         User memory newUser = User(email, name, telegram, emptyArray, emptyArray);
         addressToUser[msg.sender] = newUser;
+        emit UserDataUpdated(msg.sender, email, name, telegram);
         if (bytes(email).length > 0){
             emit NewEmailVerificationRequest(msg.sender, email);
         }
@@ -132,6 +140,16 @@ contract Keybook is Ownable {
         address verifier = recover(dataToSign, _sig);
         require(addressIsAVerifier[verifier]);
         verifyingUser.telegramVerifiedByAddresses.push(verifier);
+    }
+
+    function getNumberOfEmailVerifications(address userAddress) public view returns (uint256) {
+        User storage verifyingUser = addressToUser[userAddress];
+        return verifyingUser.emailVerifiedByAddresses.length;
+    }
+
+    function getNumberOfTelegramVerifications(address userAddress) public view returns (uint256) {
+        User storage verifyingUser = addressToUser[userAddress];
+        return verifyingUser.telegramVerifiedByAddresses.length;
     }
 
     function addVerifier(address newVerifier) public onlyOwner {
