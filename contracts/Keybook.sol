@@ -29,6 +29,13 @@ contract Keybook is Ownable {
         string telegram
     );
 
+    event UserDataUpdated(
+        address userAddress,
+        string email,
+        string name,
+        string telegram
+    );
+
 
     mapping(address => User) addressToUser;
 
@@ -77,6 +84,7 @@ contract Keybook is Ownable {
         address[] memory emptyArray;
         User memory newUser = User(email, name, telegram, emptyArray, emptyArray);
         addressToUser[msg.sender] = newUser;
+        emit UserDataUpdated(msg.sender, email, name, telegram);
         if (bytes(email).length > 0){
             emit NewEmailVerificationRequest(msg.sender, email);
         }
