@@ -2,7 +2,8 @@ const Web3 = require("web3");
 const web3 = new Web3(
   new Web3.providers.WebsocketProvider("ws:127.0.0.1:8545")
 );
-const schema = require("../build/contracts/Keybook.json");
+const fs = require("fs");
+const abi = JSON.parse(JSON.parse(fs.readFileSync('../contracts/Keybook.json'))['Keybook.sol:Keybook'].abi);
 // const address = "0x211f0eA6F65cE83c0a853E3C9E0ac9a69353ada7";
 const address = "0x69311c22d026b1E28C032224A006461D632473A3";
 // const ownderAddress = "0x775dD00D3CDE2645A6Dc93F7177A1163B0bFd064";
@@ -14,7 +15,7 @@ const email = require("./helpers/email");
 const telegram_bot = require("./helpers/telegram");
 // const userAddress = "0x31119260c0Bd3a8Ad822878B687efc3AFB60B603";
 
-const Keybook = new web3.eth.Contract(schema.abi, address);
+const Keybook = new web3.eth.Contract(abi, address);
 
 Keybook.events.NewEmailVerificationRequest().on("data", async event => {
   console.log("within email verification data");
