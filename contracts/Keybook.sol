@@ -128,7 +128,7 @@ contract Keybook is Ownable {
     function verifyTelegram(address userAddress, bytes memory _sig) public {
         User storage verifyingUser = addressToUser[userAddress];
 
-        bytes32 dataToSign = keccak256(abi.encodePacked(userAddress, verifyingUser.telegram));
+        bytes32 dataToSign = keccak256(abi.encodePacked(userAddress, "telegram: ", verifyingUser.telegram));
         address verifier = recover(dataToSign, _sig);
         require(addressIsAVerifier[verifier]);
         verifyingUser.telegramVerifiedByAddresses.push(verifier);
