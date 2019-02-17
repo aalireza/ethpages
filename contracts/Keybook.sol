@@ -99,8 +99,7 @@ contract Keybook {
         // create the new user
         addresses.length += 1;
         addresses[addresses.length - 1] = msg.sender;
-        address[] memory emptyArray;
-        User memory newUser = User(email, name, telegram, emptyArray, emptyArray);
+        User memory newUser = User(email, name, telegram, new address[](0), new address[](0));
         addressToUser[msg.sender] = newUser;
         emit UserDataUpdated(msg.sender, email, name, telegram);
         if (bytes(email).length > 0){
@@ -115,11 +114,13 @@ contract Keybook {
         return addresses;
     }
 
-    function getUser(address addr) public view returns (string memory email, string memory name, string memory telegram) {
+    function getUser(address addr) public view returns (string memory email, string memory name, string memory telegram, uint numEmailVerifications, uint numTelegramVerifications) {
         User storage user = addressToUser[addr];
         email = user.email;
         name = user.name;
         telegram = user.telegram;
+        numEmailVerifications = user.emailVerifiedByAddresses.length;
+        numTelegramVerifications = user.telegramVerifiedByAddresses.length;
     }
 
     uint256 constant N  = 115792089210356248762697446949407573529996955224135760342422259061068512044369;
