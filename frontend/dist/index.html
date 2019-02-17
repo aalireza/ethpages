@@ -1,0 +1,249 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spinkit/1.2.5/spinners/8-circle.min.css">
+	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-debug.js" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/fortmatic@latest/dist/fortmatic.js"></script>
+
+	<script type="text/javascript" src="main.js"></script>
+
+	<link rel="stylesheet" href="main.css">
+</head>
+<body class="bg-light">
+	<!-- TODO display error if there is one -->
+	
+	<!-- ko if: failed() -->
+	<div class="container">
+		<div class="alert alert-danger">Encountered a fatal error, please refresh!</div>
+	</div>
+	<!-- /ko -->
+
+	<!-- ko if: !failed() -->
+	<!-- ko if: activePageId() === 'search' -->
+	<div class="search container">
+		<h1 class="h1">ethpages</h1>
+		<div class="search-bar">
+			<input class="form-control" placeholder="name, telegram, email..." type="text" data-bind="textInput: search.searchText">
+			<button class="btn btn-primary" data-bind="click: search.doSearch">Search</button>
+		</div>
+		<div class="or-add-yourself">
+			<a href="javascript:void(0);" data-bind="click: addYourself">or add yourself...</a>
+		</div>
+	</div>
+	<!-- /ko -->
+	<!-- ko if: activePageId() === 'searchResults' -->
+	<div class="search-results container">
+		<h1 class="h1 text-center">ethpages</h1>
+		<div class="search-bar">
+			<input class="form-control" placeholder="name, telegram, email..." type="text" data-bind="textInput: searchResults.searchText">
+			<button class="btn btn-primary" data-bind="disable: searchResults.results() === null, click: searchResults.doSearch">
+				Search
+			</button>
+		</div>
+		<!-- ko if: searchResults.results() === null -->
+		<div class="results border mt-2">
+			<div class="sk-circle">
+				<div class="sk-circle1 sk-child"></div>
+				<div class="sk-circle2 sk-child"></div>
+				<div class="sk-circle3 sk-child"></div>
+				<div class="sk-circle4 sk-child"></div>
+				<div class="sk-circle5 sk-child"></div>
+				<div class="sk-circle6 sk-child"></div>
+				<div class="sk-circle7 sk-child"></div>
+				<div class="sk-circle8 sk-child"></div>
+				<div class="sk-circle9 sk-child"></div>
+				<div class="sk-circle10 sk-child"></div>
+				<div class="sk-circle11 sk-child"></div>
+				<div class="sk-circle12 sk-child"></div>
+			</div>
+		</div>
+		<!-- /ko -->
+		<!-- ko if: searchResults.results() !== null -->
+		<div class="results border mt-2" data-bind="foreach: searchResults.results()">
+			<div class="card p-1">
+				<div class="h5 user-name" data-bind="text: name"></div>
+				<!-- ko if: telegram !== null -->
+				<div class="user-telegram">
+					Telegram: <a data-bind="attr: {href: 'https://t.me/' + telegram}, text: '@' + telegram"></a>
+				</div>
+				<!-- /ko -->
+				<!-- ko if: email !== null -->
+				<div class="user-email">
+					Email: <a data-bind="attr: {href: 'mailto:' + email}, text: email"></a>
+				</div>
+				<!-- /ko -->
+				<div class="user-bottom">
+					<div class="user-address">
+						Address: <a data-bind="attr: {href: 'https://etherscan.io/address/' + address}, text: address"></a>
+					</div>
+					<button class="send-money btn btn-sm btn-primary">Send ETH</button>
+				</div>
+			</div>
+		</div>
+		<!-- /ko -->
+		<div class="or-add-yourself">
+			<a href="javascript:void(0);" data-bind="click: addYourself">add yourself</a>
+		</div>
+	</div>
+	<!-- /ko -->
+	<!-- ko if: activePageId() === 'userDetails' -->
+	<!-- /ko -->
+	<!-- ko if: activePageId() === 'addOrEdit' -->
+	<div class="add-or-edit container">
+		<h1 class="h1 text-center">ethpages</h1>
+		<h2 class="h5 text-center">Add yourself</h2>
+		<!-- ko if: addOrEdit.nextError() !== null -->
+		<div class="row py-3">
+			<div class="col">
+				<div class="alert alert-info" data-toggle="tooltip" data-placement="bottom" data-bind="text: addOrEdit.nextError()"></div>
+			</div>
+		</div>
+		<!-- /ko -->
+		<div class="row mb-3">
+			<div class="col">
+				<label for="aoe-name">Name/Alias</label>
+				<input type="text" id="aoe-name" class="form-control" placeholder="John Brown, hacker1337, etc." data-bind="textInput: addOrEdit.name">
+			</div>
+		</div>
+		<!-- ko if: addOrEdit.telegram() !== null -->
+		<div class="row mb-3">
+			<div class="col">
+				<label for="aoe-name">
+					Telegram Username
+					<button class="btn btn-sm btn-danger" data-bind="click: addOrEdit.removeTelegram">
+						<img class="trash-icon" src="img/si-glyph-trash.svg">
+					</button>
+				</label>
+				<input type="text" id="aoe-name" class="form-control" data-bind="textInput: addOrEdit.telegram">
+			</div>
+		</div>
+		<!-- /ko -->
+		<!-- ko if: addOrEdit.twitter() !== null -->
+		<div class="row mb-3">
+			<div class="col">
+				<label for="aoe-twitter">
+					Twitter Username
+					<button class="btn btn-sm btn-danger" data-bind="click: addOrEdit.removeTwitter">
+						<img class="trash-icon" src="img/si-glyph-trash.svg">
+					</button>
+				</label>
+				<input type="text" id="aoe-name" class="form-control" data-bind="textInput: addOrEdit.twitter">
+			</div>
+		</div>
+		<!-- /ko -->
+		<!-- ko if: addOrEdit.reddit() !== null -->
+		<div class="row mb-3">
+			<div class="col">
+				<label for="aoe-twitter">
+					Reddit Username
+					<button class="btn btn-sm btn-danger" data-bind="click: addOrEdit.removeReddit">
+						<img class="trash-icon" src="img/si-glyph-trash.svg">
+					</button>
+				</label>
+				<input type="text" id="aoe-name" class="form-control" data-bind="textInput: addOrEdit.reddit">
+			</div>
+		</div>
+		<!-- /ko -->
+		<!-- ko if: addOrEdit.email() !== null -->
+		<div class="row mb-3">
+			<div class="col">
+				<label for="aoe-name">
+					Email Address
+					<button class="btn btn-sm btn-danger" data-bind="click: addOrEdit.removeEmail">
+						<img class="trash-icon" src="img/si-glyph-trash.svg">
+					</button>
+				</label>
+				<input type="text" id="aoe-name" class="form-control" data-bind="textInput: addOrEdit.email">
+			</div>
+		</div>
+		<!-- /ko -->
+		<!-- ko if: addOrEdit.verifiableInfo().length !== addOrEdit.maxVerifiableCount -->
+		<div class="row mb-3">
+			<div class="col dropdown">
+				<button class="add-more btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					Add verifiable information
+				</button>
+				<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+					<!-- ko if: addOrEdit.telegram() === null -->
+					<a class="dropdown-item" href="javascript:void(0)" data-bind="click: addOrEdit.addTelegram">Telegram Username</a>
+					<!-- /ko -->
+					<!-- ko if: addOrEdit.twitter() === null -->
+					<a class="dropdown-item" href="javascript:void(0)" data-bind="click: addOrEdit.addTwitter">Twitter Username</a>
+					<!-- /ko -->
+					<!-- ko if: addOrEdit.reddit() === null -->
+					<a class="dropdown-item" href="javascript:void(0)" data-bind="click: addOrEdit.addReddit">Reddit Username</a>
+					<!-- /ko -->
+					<!-- ko if: addOrEdit.email() === null -->
+					<a class="dropdown-item" href="javascript:void(0)" data-bind="click: addOrEdit.addEmail">Email Address</a>
+					<!-- /ko -->
+				</div>
+			</div>
+		</div>
+		<!-- /ko -->
+		<div class="row mb-3">
+			<div class="col">
+				<button type="button" class="btn import-from-uport" data-bind="disable: addOrEdit.submitting() || addOrEdit.importing(), click: addOrEdit.doImportFromUport">
+					<span data-bind="if: !addOrEdit.importing()">Import from uPort</span>
+					<span data-bind="if: addOrEdit.importing()">Connecting to uPort...</span>
+				</button>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col btn-group">
+				<button class="col btn btn-danger" data-bind="disable: addOrEdit.submitting() || addOrEdit.importing(), click: addOrEdit.cancel">Cancel</button>
+				<button class="col btn btn-primary" data-bind="disable: addOrEdit.submitting() || addOrEdit.importing() || addOrEdit.nextError() !== null, click: addOrEdit.submit">Submit</button>
+			</div>
+		</div>
+	</div>
+	<!-- /ko -->
+	<!-- ko if: activePageId() === 'submissionStatus' -->
+	<div class="submission-status container">
+		<h1 class="h1 text-center">ethpages</h1>
+		<!-- ko if: submissionStatus.verificationStatus() === null -->
+		<div class="status p-2 border mt-2">
+			<div class="sk-circle">
+				<div class="sk-circle1 sk-child"></div>
+				<div class="sk-circle2 sk-child"></div>
+				<div class="sk-circle3 sk-child"></div>
+				<div class="sk-circle4 sk-child"></div>
+				<div class="sk-circle5 sk-child"></div>
+				<div class="sk-circle6 sk-child"></div>
+				<div class="sk-circle7 sk-child"></div>
+				<div class="sk-circle8 sk-child"></div>
+				<div class="sk-circle9 sk-child"></div>
+				<div class="sk-circle10 sk-child"></div>
+				<div class="sk-circle11 sk-child"></div>
+				<div class="sk-circle12 sk-child"></div>
+			</div>
+		</div>
+		<!-- /ko -->
+		<!-- ko if: submissionStatus.verificationStatus() !== null -->
+		<div class="status p-2 border mt-2">
+			<!-- ko if: Object.keys(submissionStatus.verificationStatus()).length === 0 -->
+			Your profile has been verified!
+			<!-- /ko -->
+			<!-- ko if: Object.keys(submissionStatus.verificationStatus()).length !== 0 -->
+			Your submission needs to be verified. You still need to do the following to complete verification:
+			<ul>
+				<li>Check your email inbox for a verification email and follow the steps on it.</li>
+				<li>
+					Send the Telegram message "verify" to 
+					<a href="https://t.me/ethpages_bot">@ethpages_bot</a>
+				</li>
+			</ul>
+			<!-- /ko -->
+		</div>
+		<!-- /ko -->
+		<a class="go-back" href="javascript:void(0)" data-bind="click: submissionStatus.backToSearch">go back</a>
+	</div>
+	<!-- /ko -->
+	<!-- /ko -->
+</body>
+</html>
