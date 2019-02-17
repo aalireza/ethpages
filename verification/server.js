@@ -8,7 +8,7 @@ const web3 = new Web3(
 const fs = require("fs");
 var config = JSON.parse(fs.readFileSync('../frontend/dist/config.json'));
 const contractAddress =  config.contractAddress;
-const verifierAddress = config.ownerAddress;
+const verifierAddress = config.verifierAddress;
 const email = require("./helpers/email");
 const telegram_bot = require("./helpers/telegram");
 
@@ -26,11 +26,10 @@ Keybook.events.NewEmailVerificationRequest().on("data", async event => {
     web3.utils.toHex("email: "),
     web3.utils.toHex(userEmail)
   );
-  let signature = await web3.eth.sign(message, verifierAddress);
   if (email.validate_email(userEmail)) {
     email.send_mail(
       userEmail,
-      `Below is the signature. Do what you must:\n${signature}`
+      'Verify your email at https://ethpages.com/#!/verify-email/' + encodeURIComponent(userAdd)
     );
   }
 });
@@ -45,8 +44,7 @@ Keybook.events.NewTelegramVerificationRequest().on("data", async event => {
         web3.utils.toHex("telegram: "),
         web3.utils.toHex(msg.chat.username.toString())
       );
-      let signature = await web3.eth.sign(message, verifierAddress);
-      telegram_bot.sendMessage(msg.chat.id, signature);
+      telegram_bot.sendMessage(msg.chat.id, 'Verify your email at https://ethpages.com/#!/verify-telegram/' + encodeURIComponent(userAdd));
     }
   });
 });

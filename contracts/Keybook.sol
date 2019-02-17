@@ -153,21 +153,27 @@ contract Keybook {
     }
 
 
-    function verifyEmail(address userAddress, bytes memory _sig) public {
-        User storage verifyingUser = addressToUser[userAddress];
+    function verifyEmail(address userAddress /*, bytes memory _sig*/) public {
+        /*
+        TODO authenticate verification
         bytes32 dataToSign = keccak256(abi.encodePacked(userAddress, "email: ", verifyingUser.email));
         address verifier = recover(dataToSign, _sig);
         require(addressIsAVerifier[verifier]);
-        verifyingUser.emailVerifiedByAddresses.push(verifier);
+        */
+        User storage verifyingUser = addressToUser[userAddress];
+        verifyingUser.emailVerifiedByAddresses.push(userAddress);
     }
 
-    function verifyTelegram(address userAddress, bytes memory _sig) public {
-        User storage verifyingUser = addressToUser[userAddress];
+    function verifyTelegram(address userAddress /*, bytes memory _sig*/) public {
+        /*
+        TODO authenticate verification
 
         bytes32 dataToSign = keccak256(abi.encodePacked(userAddress, "telegram: ", verifyingUser.telegram));
         address verifier = recover(dataToSign, _sig);
         require(addressIsAVerifier[verifier]);
-        verifyingUser.telegramVerifiedByAddresses.push(verifier);
+        */
+        User storage verifyingUser = addressToUser[userAddress];
+        verifyingUser.telegramVerifiedByAddresses.push(userAddress);
     }
 
     function getNumberOfEmailVerifications(address userAddress) public view returns (uint256) {

@@ -97,6 +97,22 @@ var resendVerifications = async function() {
     }
 };
 
+var applyVerification = async function(type) {
+    var accountAddress = (await web3.eth.getAccounts())[0];
+    switch(type) {
+        case 'email':
+            await contract.methods.verifyEmail(accountAddress).send({
+                from: accountAddress
+            });
+            break;
+        case 'telegram':
+            await contract.methods.verifyEmail(accountAddress).send({
+                from: accountAddress
+            });
+            break;
+    }
+};
+
 var importFromUport = async function(attrs) {
     uport.requestDisclosure({
         verified: attrs
@@ -322,10 +338,35 @@ var state = {
             state.activePageId('search');
             state.search.enter();
         }
+    },
+    verify: {
+        type: ko.observable(''),
+        done: ko.observable(false),
+        tryRestoreFromHash: function(hash) {
+            console.log('hash =', hash);
+            if(hash.indexOf('#!/verify-email/') === 0) {
+                this.enter('email');
+                return true;
+            } else if(hash.indexOf('#!/verify-telegram/') === 0) {
+                this.enter('telegram');
+                return true;
+            }
+            return false;
+        },
+        enter: function(type) {
+            state.verify.type(type);
+            state.verify.done(false);
+            applyVerification(type).then(function() {
+                state.verify.done(true);
+            }).catch(function(ex) {
+                console.error(ex);
+                state.failed(true);
+            });
+        }
     }
 };
 
-var pageIds = ['search', 'searchResults', 'addOrEdit', 'submissionStatus'];
+var pageIds = ['search', 'searchResults', 'addOrEdit', 'submissionStatus', 'verify'];
 
 state.addYourself = function() {
     var fn = async function() {
@@ -374,7 +415,6 @@ var restorePage = function() {
 };
 
 var run = async function() {
-    location.hash = savedHash;
     var info = await (await fetch('Keybook.json')).json();
     var abi = JSON.parse(info.contracts['Keybook.sol:Keybook'].abi);
     contractAddress = (await (await fetch('config.json')).json()).contractAddress;
