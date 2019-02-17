@@ -134,6 +134,16 @@ contract Keybook is Ownable {
         verifyingUser.telegramVerifiedByAddresses.push(verifier);
     }
 
+    function getNumberOfEmailVerifications(address userAddress) public view returns (uint256) {
+        User storage verifyingUser = addressToUser[userAddress];
+        return verifyingUser.emailVerifiedByAddresses.length;
+    }
+
+    function getNumberOfTelegramVerifications(address userAddress) public view returns (uint256) {
+        User storage verifyingUser = addressToUser[userAddress];
+        return verifyingUser.telegramVerifiedByAddresses.length;
+    }
+
     function addVerifier(address newVerifier) public onlyOwner {
         addressIsAVerifier[newVerifier] = true;
     }
