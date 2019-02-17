@@ -1,0 +1,7 @@
+type User @entity {
+  id: ID!
+  email: String!
+  address: Bytes!
+  name: String!
+  telegram: String!
+}
