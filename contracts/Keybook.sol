@@ -1,9 +1,6 @@
-pragma solidity ^0.5.4;
+pragma solidity ^0.5.3;
 
-import {Ownable} from "./Ownable.sol";
-
-
-contract Keybook is Ownable {
+contract Keybook {
 
     mapping(address => bool) public addressIsAVerifier;
 
@@ -37,9 +34,18 @@ contract Keybook is Ownable {
     );
 
 
+    address owner;
     address[] addresses;
     mapping(address => User) addressToUser;
 
+    constructor() public {
+        owner = msg.sender;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner);
+        _;
+    }
 
     function requestEmailVerification() public {
        string memory email = addressToUser[msg.sender].email;
