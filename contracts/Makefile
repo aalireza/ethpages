@@ -7,4 +7,4 @@ clean:
 
 Keybook.json: Keybook.sol
 	solc Keybook.sol --combined-json abi,bin > Keybook.json
-	cp Keybook.json ../frontend/Keybook.json
+	cp Keybook.json ../frontend/dist/Keybook.json
