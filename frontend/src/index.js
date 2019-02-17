@@ -2,37 +2,40 @@ var savedHash = location.hash; // uport clobbers the hash, need to save it for l
 var emailValidator = require('email-validator');
 var Connect = require('uport-connect').Connect;
 var uport = new Connect('ethpages');
+var fm = new Fortmatic('pk_test_373C8980D07911F3');
+var web3 = new Web3(fm.getProvider());
 
-// TODO remove central dependencies in index.html once this is running on node-webkit
+var contractAddress = '0xddf0fa5f16322c8bd9a4e39ef7d8212f6a4106b6';
+var minRequiredVerifications = 1;
 
-var mockUsers = {
-    '0x12345': {
-        name: 'John Brown',
-        telegram: null,
-        email: 'john.brown@gmail.com'
-    },
-    '0x23456': {
-        name: 'Test Guy',
-        telegram: 'testguy',
-        email: null
-    }
-};
-
-function timeout(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
+var contract = null;
 
 var search = async function(text) {
-    await timeout(500);
+	var addrs = await contract.methods.getUsers().call({}); // fetch users
+	var futs = [];
+	for(var i = 0; i !== addrs.length; ++i) {
+	  var addr = addrs[i];
+	  futs.push(contract.methods.getUser(addr).call({}));
+	}
+	var users = await Promise.all(futs);
+	for(var i = 0; i !== addrs.length; ++i) {
+	  users[i].address = addrs[i];
+	}
+    users = users.filter(function(user) {
+        if(user.telegram && user.numTelegramVerifications < minRequiredVerifications) {
+            return false;
+        }
+        if(user.email && user.numEmailVerifications < minRequiredVerifications) {
+            return false;
+        }
+        return true;
+    });
     var results = [];
-    var keys = Object.keys(mockUsers);
-    text = text.toLowerCase();
-    for(var i = 0; i !== keys.length; ++i) {
-        var user = mockUsers[keys[i]];
+    var text = text.toLowerCase();
+    for(var i = 0; i !== users.length; ++i) {
+        var user = users[i];
         if(JSON.stringify(user).toLowerCase().indexOf(text) !== -1) {
-            var obj = JSON.parse(JSON.stringify(user));
-            obj.address = keys[i];
-            results.push(obj);
+            results.push(user);
         }
     }
     return results;
@@ -45,21 +48,35 @@ var search = async function(text) {
  *  email: String | null
  */
 var submit = async function(user) {
-    await timeout(500);
-    var addr = '0x';
-    for(var i = 0; i !== 20; ++i) {
-        addr += Math.floor(Math.random()*10);
-    }
-    mockUsers[addr] = user;
+    var accountAddress = (await web3.eth.getAccounts())[0];
+
+    var name = user.name;
+    var email = user.email !== null ? user.email : '';
+    var telegram = user.telegram !== null ? user.telegram : '';
+    await contract.methods.makeUser(email, name, telegram).send({
+        from: accountAddress
+    });
+
     return true;
 };
 
+var haveProfile = async function() {
+    var accountAddress = (await web3.eth.getAccounts())[0];
+	var addrs = await contract.methods.getUsers().call({}); 
+    return addrs.indexOf(accountAddress) !== -1;
+};
+
 var getVerificationStatus = async function() {
-    await timeout(500);
-    return {
-        'telegram': false,
-        'email': false
-    };
+    var accountAddress = (await web3.eth.getAccounts())[0];
+    var user = await contract.methods.getUser(accountAddress).call({});
+    var result = {};
+    if(user.telegram) {
+        result.telegram = user.numTelegramVerifications >= minRequiredVerifications;
+    }
+    if(user.email) {
+        result.email = user.numEmailVerifications >= minRequiredVerifications;
+    }
+    return result;
 };
 
 var importFromUport = async function(attrs) {
@@ -279,6 +296,10 @@ var state = {
             }).catch(function(ex) {
                 console.error(ex);
             });
+        },
+        backToSearch: function() {
+            state.activePageId('search');
+            state.search.enter();
         }
     }
 };
@@ -286,8 +307,26 @@ var state = {
 var pageIds = ['search', 'searchResults', 'addOrEdit', 'submissionStatus'];
 
 state.addYourself = function() {
-    state.activePageId('addOrEdit');
-    state.addOrEdit.enter(false);
+    var fn = async function() {
+        var entered = false;
+        if(await haveProfile()) {
+            var numUnverified = Object.keys(await getVerificationStatus()).length;
+            if(numUnverified > 0) {
+                state.activePageId('submissionStatus');
+                state.submissionStatus.enter();
+                entered = true;
+            } else {
+                alert('Editing accounts is not supported yet');
+                // TODO
+                // state.activePageId('addOrEdit');
+                // state.addOrEdit.enter(true);
+            }
+        } else {
+            state.activePageId('addOrEdit');
+            state.addOrEdit.enter(false);
+        }
+    };
+    fn().catch(console.error.bind(console));
 };
 
 var restorePage = function() {
@@ -315,6 +354,9 @@ var restorePage = function() {
 
 var run = async function() {
     location.hash = savedHash;
+    var info = await (await fetch('Keybook.json')).json();
+    var abi = JSON.parse(info.contracts['Keybook.sol:Keybook'].abi);
+    contract = new web3.eth.Contract(abi, contractAddress);
     restorePage();
 };
 
