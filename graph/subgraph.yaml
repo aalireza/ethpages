@@ -18,8 +18,8 @@ dataSources:
         - User
       abis:
         - name: Keybook
-          file: ./build/contracts/Keybook.json
+          file: ../contracts/Keybook.json
       eventHandlers:
         - event: UserDataUpdated(address,string,string,string)
           handler: handleNewUsers
-      file: ./src/mapping.ts
+      file: ./mapping.ts
