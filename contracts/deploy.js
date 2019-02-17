@@ -27,8 +27,14 @@ contract.deploy({
     from: from,
     gas: 5e6,
     gasPrice: 1e9
+}).on('transactionHash', function(transactionHash) {
+    console.error('transactionHash:', transactionHash);
 }).on('receipt', function(receipt) {
     console.error('receipt:', receipt);
+}).on('confirmation', function(confirmationNumber, receipt) {
+    console.error('confirmation:', confirmationNumber, receipt);
+}).then(function() {
+    console.log('done!');
 }).catch(function(err) {
     console.error(err);
 });

@@ -5,7 +5,7 @@ var uport = new Connect('ethpages');
 var fm = new Fortmatic('pk_test_373C8980D07911F3');
 var web3 = new Web3(fm.getProvider());
 
-var contractAddress = '0xddf0fa5f16322c8bd9a4e39ef7d8212f6a4106b6';
+var contractAddress = null; 
 var minRequiredVerifications = 1;
 
 var contract = null;
@@ -377,6 +377,7 @@ var run = async function() {
     location.hash = savedHash;
     var info = await (await fetch('Keybook.json')).json();
     var abi = JSON.parse(info.contracts['Keybook.sol:Keybook'].abi);
+    contractAddress = (await (await fetch('config.json')).json()).contractAddress;
     contract = new web3.eth.Contract(abi, contractAddress);
     restorePage();
     onhashchange = function() {
